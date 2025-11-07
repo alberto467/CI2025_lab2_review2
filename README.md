@@ -1,26 +1,68 @@
+# Travelling Salesman Problem 
+Francesco Liaci - s349552
 
-best results achieved:
-- g_10   :  1497.66
-- g_20   :  1755.51
-- g_50   :  2668.19 (inver-over performs slightly better, and increased pop_size)
-- g_100  :  4043.70 (with inver-over) (4087.05 with 2 opt)
-- g_200  :  5917.32 (much better with high rate, more mutation, generational model)
-- g_500  :  10173.91 (again better with high rate) (Final best fitness: 9623.35 with opt 2 after stagnation)
-- g_1000 :  20819.52 (takes some time to load the problem, and then 2 minutes to run)
+This project solves the **Travelling Salesman Problem (TSP)** using **evolutionary algorithms** together with **local search** and **adaptive parameters**, balancing between **exploration** and **exploitation** 
 
-- r1_10   : 184.27
-- r1_20   : 337.29 (using mutation_swap and order_crossover with more mutation, increased elitism)
-- r1_50   : 661.50 (with hybrid_v3)
-- r1_100  : 1143.91
-- r1_200  : 2265.78
-- r1_500  : 7266.88
-- r1_1000 : 13846.90
+___
+### Representation
+- **Permutation encoding** of cities (each tour is a valid permutation) 
+- Fitness = total tour distance (closed loop) using numpy
 
-- r2_10   : -411.70
-- r2_20   : -808.97
-- r2_50   : -2128.65
-- r2_100  : -4358.97
-- r2_200  : -8203.35
-- r2_500  : -15068.41
-- r2_1000 : -29485.51
+### Population Initialization
+- Random permutations of all cities
+- Population sorted by fitness (best individual always first)
+
+### Selection Strategy
+- **Tournament selection** as default:  
+  - `k` controls selective pressure (higher `k` → faster convergence, lower diversity)
+- **Rank-based selection** also available 
+
+### Operators
+- **Crossover:** *Order Crossover (OX)* and *Inver-Over* (better for symmetric TSP)
+- **Mutation:** three operators for diversity:
+  - Swap (exchange two cities)
+  - Insertion (move a city somewhere else)
+  - Inversion (reverse a segment, more effective for symmetric TSP)
+
+### Local Search
+- additional local search (like hill climbing) for fine-tuning best individuals
+- it's very heavy computationally (hence applied only on a fraction of offspring or after stagnation)
+
+### Evolution Strategies
+1. **Steady-State:** replaces worst individual only if new one is better 
+2. **Generational:** replaces the whole population (+ some elitism) 
+3. **Hybrid (v2):** first produces a batch of offsprings, before adding to the population:
+   - elitism (preserve top individuals)
+   - adaptive mutation rate and tournament size (k)
+   - some 2-opt local search
+   - stagnation for early stoppage
+
+### Adaptive Parameters
+- Mutation rate and tournament size `k` adjust automatically:
+  - No improvement -> more diversity 
+  - Improvement -> more exploitation 
+
+---
+
+## Best Results Summary
+
+| Instance | 10 cities | 20 cities | 50 cities | 100 cities | 200 cities | 500 cities | 1000 cities |
+|:----------|-----------:|-----------:|-----------:|------------:|------------:|------------:|-------------:|
+| **g**     | 1497.66 | 1755.51 | 2668.19 | 4043.70 | 5917.32 | 10173.91 | 20819.52 |
+| **r1**    | 184.27  | 337.29  | 661.50  | 1143.91 | 2235.16 | 7266.88  | 13846.90 |
+| **r2**    | -411.70 | -808.97 | -2128.65 | -4358.97 | -8442.08 | -19231.07 | -38825.75 |
+
+---
+
+### test problem 
+
+| Instance | Best Fitness |
+|:----------|-------------:|
+| **test_problem** | 2823.79 |
+
+---
+
+> **Note:**   
+> All results of fitness values found using the **hybrid_v2** evolutionary algorithm that seems to be the best one 
+
 
